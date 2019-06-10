@@ -1,0 +1,122 @@
+<%- include('./layouts/header.ejs')%>
+
+<div class="main">
+  <%- include('./layouts/navbar.ejs')%>
+
+  <div class="container-fluid">
+    <div class="page-title">
+      <h1>我的个人资料</h1>
+    </div>
+    <!-- 有错误信息时展示 -->
+    <div class="alert alert-danger errorHide">
+      <strong>错误！</strong>发生XXX错误
+    </div>
+    <form class="form-horizontal" id="myForm">
+      <input type="hidden" id="id" name="id" value="<%= id%>">
+      <div class="form-group">
+        <label class="col-sm-3 control-label">头像</label>
+        <div class="col-sm-6">
+          <label class="form-image">
+            <input id="avatar" type="file">
+            <img src="<%= avatar%>">
+            <i class="mask fa fa-upload"></i>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email" class="col-sm-3 control-label">邮箱</label>
+        <div class="col-sm-6">
+          <input id="email" class="form-control" name="email" type="type" value="<%= email%>" placeholder="邮箱" readonly>
+          <p class="help-block">登录邮箱不允许修改</p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="slug" class="col-sm-3 control-label">别名</label>
+        <div class="col-sm-6">
+          <input id="slug" class="form-control" name="slug" type="type" value="<%= slug%>" placeholder="slug">
+          <p class="help-block">https://zce.me/author/<strong>zce</strong></p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="nickname" class="col-sm-3 control-label">昵称</label>
+        <div class="col-sm-6">
+          <input id="nickname" class="form-control" name="nickname" type="type" value="<%= nickname%>" placeholder="昵称">
+          <p class="help-block">限制在 2-16 个字符</p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="bio" class="col-sm-3 control-label">简介</label>
+        <div class="col-sm-6">
+          <textarea id="bio" class="form-control" name="bio" placeholder="Bio" cols="30" rows="6"><%= bio%></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-6">
+          <button type="submit" class="btn btn-primary">更新</button>
+          <a class="btn btn-link" href="/passwordReset?id=<%= id %>">修改密码</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<%- include('./layouts/asider.ejs')%>
+<%- include('./layouts/footer.ejs')%>
+<script>
+  // 1. 上传图片
+  // 1.1 给上传按钮注册事件
+  $('#avatar').on('change', function () {
+    // console.log(123);
+    console.log($(this)[0].files);
+    // 1.2 准备数据
+    var data = new FormData()
+
+    data.append('avatar', this.files[0]);
+
+    $.ajax({
+      type: 'post',
+      url: '/uploadFile',
+      data: data,
+      dataType: 'json',
+      contentType: false, //不要将上传的数据进行urlendecoded默认编码了，因为FormData已经将要上传的数据转换成了二进制数据
+      processData: false, // 不要再进行字符串的转换了
+      success: function (res) {
+        if (res.code === 0) {
+          console.log(res);
+          $('#avatar').next().attr('src', res.src)
+
+          // 在页面中应该添加一个隐藏域来存储图片在服务器端的路径,以便跟随更新时保存到数据库
+          $('#avatar').parent().append(`<input type="hidden" name="avatar" value="${res.src}">`)
+        }
+      }
+    })
+  })
+
+  // function pageCound(totalnum, limit) {
+  //   return totalnum > 0 ? ((totalnum < limit) ? 1 : ((totalnum % limit) ? (parseInt(totalnum / limit) + 1) : (totalnum /
+  //     limit))) : 0
+  // }
+
+  //更新数据
+  $('#myForm').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'post',
+      url: '/updateProfileInfo',
+      data: $(this).serialize(),
+      dataType: 'json',
+      success: function (res) {
+        if (res.code === 0) {
+          $('.alert').removeClass('errorHide').addClass('errorShow').html(`<strong>${res.msg}</strong>`)
+
+          // 2秒钟之后让显示内容消失
+          var timeId = setTimeout(function () {
+            $('.alert').removeClass('errorShow').addClass('errorHide')
+
+            clearTimeout(timeId) // 清除掉定时器
+          }, 2000);
+        }
+      }
+    })
+
+  })
+</script>

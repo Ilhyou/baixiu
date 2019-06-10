@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    while (true) {
+      var gz = parseInt(prompt('请输入工资'));
+      var gz1 = gz / 1000;
+      var gz2 = gz1/0.7;
+      alert('收入/1000/0.7是:'+gz2)
+      if(gz2>20000){
+        gz2 = gz2/0.96
+      }else if(gz2>1000){
+        gz2 = gz2/0.94
+      }else if(gz2>150){
+        gz2 = gz2/0.91
+      }else if(gz2>100){
+        gz2 = gz2/0.88
+      }
+      alert('分成比是:'+gz2)
+      var gz3 = gz2 / 0.48;
+      alert('收入抹零/0.48:'+gz3)
+    }
+  </script>
+</body>
+
+</html>

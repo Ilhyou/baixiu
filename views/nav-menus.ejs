@@ -1,0 +1,169 @@
+<%- include('./layouts/header.ejs')%>
+
+<div class="main">
+  <%- include('./layouts/navbar.ejs')%>
+  <div class="container-fluid">
+    <div class="page-title">
+      <h1>导航菜单</h1>
+    </div>
+    <!-- 有错误信息时展示 -->
+    <!-- <div class="alert alert-danger">
+        <strong>错误！</strong>发生XXX错误
+      </div> -->
+    <div class="row">
+      <div class="col-md-4">
+        <form id="myForm">
+          <h2>添加新导航链接</h2>
+          <div class="form-group">
+            <label for="text">文本</label>
+            <input id="text" class="form-control" name="text" type="text" placeholder="文本">
+          </div>
+          <div class="form-group">
+            <label for="title">标题</label>
+            <input id="title" class="form-control" name="title" type="text" placeholder="标题">
+          </div>
+          <div class="form-group">
+            <label for="href">链接</label>
+            <input id="href" class="form-control" name="link" type="text" placeholder="链接">
+          </div>
+          <div class="form-group">
+            <label for="href">图标</label>
+            <input id="href" class="form-control" name="icon" type="text" placeholder="图标">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" type="submit">添加</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-8">
+        <div class="page-action" style="height: 30px">
+          <!-- show when multiple checked -->
+          <a class="btn btn-danger btn-sm" href="javascript:;" style="display: none" id="delMore">批量删除</a>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="text-center" width="40"><input type="checkbox" id="chkToggle"></th>
+              <th>文本</th>
+              <th>标题</th>
+              <th>链接</th>
+              <th class="text-center" width="100">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('./layouts/asider.ejs')%>
+<%- include('./layouts/footer.ejs')%>
+<script type="text/template" id="navMenusListTmp">
+  {{each data}}
+    <tr>
+      <td class="text-center"><input type="checkbox" data-index = "{{$index}}" class="chkdel"></td>
+      <td><i class="{{$value.icon}}"></i>{{$value.text}}</td>
+      <td>{{$value.title}}</td>
+      <td>{{$value.link}}</td>
+      <td class="text-center">
+        <a href="javascript:;" data-index = "{{$index}}" class="btnDel btn btn-danger btn-xs">删除</a>
+      </td>
+    </tr>
+  {{/each}}
+</script>
+<script>
+  render();
+
+  function render() {
+    $.ajax({
+      type: 'get',
+      url: '/getNavMenusData',
+      dataType: 'json',
+      success: function (res) {
+        if (res && res.code === 0) {
+          var htmlStr = template('navMenusListTmp', res)
+          $('tbody').html(htmlStr)
+        }
+      }
+    })
+  }
+
+  // 添加
+  $('#myForm').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'post',
+      url: '/addNewNavMenus',
+      data: $(this).serialize(),
+      dataType: 'json',
+      success: function (res) {
+        if (res && res.code === 0) {
+          render();
+          $('input[name]').val('')
+        }
+      }
+    })
+  })
+
+  // 删除
+  $('tbody').on('click', '.btnDel', function () {
+    $.ajax({
+      type: 'get',
+      url: '/delNavMenus',
+      data: {
+        index: $(this).data('index')
+      },
+      dataType: 'json',
+      success: function (res) {
+        if (res && res.code == 0) {
+          // 3.3 重新更新页面
+          render(); // 重新渲染页面
+        }
+      }
+    })
+  })
+
+  // 全选
+  $('#chkToggle').on('click', function () {
+    $('tbody .chkdel').prop('checked', $(this).prop('checked'))
+
+    $(this).prop('checked') ? $('#delMore').show(400) : $('#delMore').hide(400)
+  })
+
+  // 反选
+  $('tbody').on('click', '.chkdel', function () {
+    // 获取总的复选框
+    var count = $('tbody .chkdel').size();
+    // 获取选中的复选框
+    var sizes = $('tbody .chkdel:checked').size();
+
+    sizes >= 2 ? $('#delMore').show(400) : $('#delMore').hide(400);
+
+    sizes === count ? $('#chkToggle').prop('checked', true) : $('#chkToggle').prop('checked', false)
+  })
+
+  // 批量删除
+  $('#delMore').on('click', function () {
+    var idxs = [];
+    $('tbody .chkdel:checked').each(function (idx, ele) {
+      idxs.push(parseInt($(ele).data('index')))
+    })
+    console.log(idxs);
+    $.ajax({
+      type: 'get',
+      url: '/delMoreNavMenus',
+      data: {
+        idxs: idxs
+      },
+      dataType: 'json',
+      success: function (res) {
+        if (res && res.code === 0) {
+          render();
+          $('#delMore').hide(400);
+        }
+      }
+    })
+  })
+</script>

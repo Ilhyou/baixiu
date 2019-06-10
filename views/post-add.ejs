@@ -1,0 +1,119 @@
+<%- include('./layouts/header.ejs')%>
+
+<div class="main">
+  <%- include('./layouts/navbar.ejs')%>
+
+  <div class="container-fluid">
+    <div class="page-title">
+      <h1>写文章</h1>
+    </div>
+    <!-- 有错误信息时展示 -->
+    <div class="alert alert-danger errorHide">
+      <strong>错误！</strong>发生XXX错误
+    </div>
+    <form class="row" id="myForm">
+      <div class="col-md-9">
+        <div class="form-group">
+          <label for="title">标题</label>
+          <input id="title" class="form-control input-lg" name="title" type="text" placeholder="文章标题">
+        </div>
+        <div class="form-group">
+          <label for="content">标题</label>
+          <textarea id="content" class="form-control input-lg" name="content" cols="30" rows="10"
+            placeholder="内容"></textarea>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="slug">别名</label>
+          <input id="slug" class="form-control" name="slug" type="text" placeholder="slug">
+          <p class="help-block">https://zce.me/post/<strong>slug</strong></p>
+        </div>
+        <div class="form-group">
+          <label for="feature">特色图像</label>
+          <!-- show when image chose -->
+          <img class="help-block thumbnail" style="display: none">
+          <input id="feature" class="form-control" type="file">
+        </div>
+        <div class="form-group">
+          <label for="category">所属分类</label>
+          <select id="category_id" class="form-control" name="category_id">
+            <% data.forEach(function(item,index){%>
+            <option value="<%= item.id%>"><%= item.name%></option>
+            <%})%>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="created">发布时间</label>
+          <input id="created" class="form-control" name="created" type="datetime-local">
+        </div>
+        <div class="form-group">
+          <label for="status">状态</label>
+          <select id="status" class="form-control" name="status">
+            <option value="drafted">草稿</option>
+            <option value="published">已发布</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('./layouts/asider.ejs')%>
+<%- include('./layouts/footer.ejs')%>
+
+<script>
+
+  // 1.上传图片
+  $('#feature').on('change', function () {
+    // console.log(123);
+    console.log($(this)[0].files);
+    // 1.2 准备数据
+    var data = new FormData()
+
+    data.append('avatar', this.files[0]);
+
+    $.ajax({
+      type: 'post',
+      url: '/uploadPostFile',
+      data: data,
+      dataType: 'json',
+      contentType: false, //不要将上传的数据进行urlendecoded默认编码了，因为FormData已经将要上传的数据转换成了二进制数据
+      processData: false, // 不要再进行字符串的转换了
+      success: function (res) {
+        if (res.code === 0) {
+          console.log(res);
+          // 把图片显示再页面上 并在页面中应该添加一个隐藏域来存储图片在服务器端的路径,以便跟随更新时保存到数据库
+          
+          $('.thumbnail').show().attr('src', res.src).after(`<input type="hidden" name="feature" value="${res.src}">`)
+        }
+      }
+    })
+  })
+
+  //保存数据
+  $('#myForm').on("submit",function (e) {
+    e.preventDefault();
+    $.ajax({
+      type:'post',
+      url:'/addPost',
+      data:$(this).serialize(),
+      dataType:'json',
+      success:function(res){
+        if(res.code === 0){
+          $('.alert').removeClass('errorHide').addClass('errorShow').html(`<strong>${res.msg}</strong>`);
+
+          var timerId = setTimeout(function () {
+            $('.alert').removeClass('errorShow').addClass('errorHide')
+
+            clearTimeout(timerId);
+            // location.href = '/posts'
+          },2000)
+        }
+      }
+    })
+  })
+</script>
