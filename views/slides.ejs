@@ -105,8 +105,8 @@
       dataType: 'json',
       success: function (res) {
         if (res && res.code === 0) {
-          $('.thumbnail').show().attr('src', res.src).after(
-            `<input type="hidden" name="image" value="${res.src}">`)
+          $('input[type=hidden][name=image]').remove();
+          $('.thumbnail').show().attr('src', res.src).after(`<input type="hidden" name="image" value="${res.src}">`)
         }
       }
     })
