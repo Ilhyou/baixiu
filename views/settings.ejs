@@ -48,7 +48,7 @@
               <label><input id="comment_status" name="comment_status" type="checkbox" <% if(comment_status==0){%> checked <%}%> >开启评论功能</label>
             </div>
             <div class="checkbox">
-              <label><input id="comment_reviewed" name="comment_reviewed" type="checkbox" <% if(comment_reviewed==0){%> checked <%}%> >评论必须经人工批准</label>
+              <label><input id="comment_reviewed" name="comment_reviewed" type="checkbox" <% if(comment_reviewed==1){%> checked <%}%> >评论必须经人工批准</label>
             </div>
         </div>
       </div>
@@ -100,6 +100,12 @@
       success:function(res){
         if(res&&res.code==0){
           console.log(res);
+          $('.alert').removeClass('errorHide').addClass('errorShow').html('<strong>'+res.msg+'</strong>')
+
+          var timered = setTimeout(function(){
+            $('.alert').removeClass('errorShow').addClass('errorHide')
+            clearTimeout(timered)
+          },2000)
         }
       }
     })

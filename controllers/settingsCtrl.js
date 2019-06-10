@@ -140,8 +140,8 @@ module.exports = {
   updateSettings(req, res) {
     let obj = req.body;
 
-    obj.comment_status === 'on' ? obj.comment_status = 0 : obj.comment_status = 1
-    obj.comment_reviewed === 'on' ? obj.comment_reviewed = 0 : obj.comment_reviewed = 1
+    obj.comment_status = obj.comment_status === 'on' ? 0 :  1
+    obj.comment_reviewed =obj.comment_reviewed === 'on' ? 1 :  0
     console.log(obj);
     settingsModel.updateSettings(obj,result=>{
       if(result) return res.json({

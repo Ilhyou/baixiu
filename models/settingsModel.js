@@ -16,14 +16,17 @@ module.exports = {
 
       let arr = JSON.parse(results[0]['value'])
       arr.push(nav);
-      let str = JSON.stringify(arr);
+      // let str = JSON.stringify(arr);
 
-      let sql = "update options set `value` = ? where `key` = 'nav_menus'";
-      conn.query(sql, str, (err, results) => {
-        if (err) return callback(err)
+      // let sql = "update options set `value` = ? where `key` = 'nav_menus'";
+      // conn.query(sql, str, (err, results) => {
+      //   if (err) return callback(err)
 
-        callback(null)
-      })
+      //   callback(null)
+      // })
+
+      this.updateInfoByParams(arr,'nav_menus',callback)
+
     })
   },
   delNavMenusByIndex(index, callback) {
@@ -38,15 +41,17 @@ module.exports = {
           return true;
         }
       })
-      let str = JSON.stringify(arr);
+      // let str = JSON.stringify(arr);
 
-      let sql = "update options set `value` = ? where `key` = 'nav_menus'";
+      // let sql = "update options set `value` = ? where `key` = 'nav_menus'";
 
-      conn.query(sql, str, (err, results) => {
-        if (err) callback(err)
+      // conn.query(sql, str, (err, results) => {
+      //   if (err) callback(err)
 
-        callback(null)
-      })
+      //   callback(null)
+      // })
+      this.updateInfoByParams(arr,'nav_menus',callback)
+      
     })
   },
   delMoreNavMenus(idxs, callback) {
@@ -64,15 +69,18 @@ module.exports = {
         arr.splice(item, 1)
       })
 
-      console.log(arr);
-      let str = JSON.stringify(arr);
-      let sql = "update options set `value` = ? where `key` = 'nav_menus'";
+      // console.log(arr);
+      // let str = JSON.stringify(arr);
+      // let sql = "update options set `value` = ? where `key` = 'nav_menus'";
 
-      conn.query(sql, str, (err, results) => {
-        if (err) callback(err)
+      // conn.query(sql, str, (err, results) => {
+      //   if (err) callback(err)
 
-        callback(null)
-      })
+      //   callback(null)
+      // })
+
+      this.updateInfoByParams(arr,'nav_menus',callback)
+
     })
   },
 
@@ -92,15 +100,17 @@ module.exports = {
       arr.push(slides)
 
       // 转换成字符串
-      let str = JSON.stringify(arr)
-      // 1. 准备SQL语句
-      let sql = "update options set `value` = ? where `key` = 'home_slides';"
-      // 2. 调用方法进行添加
-      conn.query(sql, [str], (err, results) => {
-        if (err) return callback(err)
+      // let str = JSON.stringify(arr)
+      // // 1. 准备SQL语句
+      // let sql = "update options set `value` = ? where `key` = 'home_slides';"
+      // // 2. 调用方法进行添加
+      // conn.query(sql, [str], (err, results) => {
+      //   if (err) return callback(err)
 
-        callback(null, results)
-      })
+      //   callback(null, results)
+      // })
+
+      this.updateInfoByParams(arr,'home_slides',callback)
     })
   },
   delSlides(index, callback) {
@@ -114,13 +124,23 @@ module.exports = {
           return true;
         }
       })
-      let str = JSON.stringify(arr);
-      let sql = "update options set `value` = ? where `key` = 'home_slides'";
-      conn.query(sql, str, (err, results) => {
-        if (err) return callback(err)
+      // let str = JSON.stringify(arr);
+      // let sql = "update options set `value` = ? where `key` = 'home_slides'";
+      // conn.query(sql, str, (err, results) => {
+      //   if (err) return callback(err)
 
-        callback(null)
-      })
+      //   callback(null)
+      // })
+      this.updateInfoByParams(arr,'home_slides',callback)
+    })
+  },
+  updateInfoByParams(arr, key, callback) {
+    let str = JSON.stringify(arr);
+    let sql = "update options set `value` = ? where `key` = ?";
+    conn.query(sql, [str, key], (err, results) => {
+      if (err) return callback(err)
+
+      callback(null)
     })
   },
 
@@ -137,16 +157,16 @@ module.exports = {
   },
   updateSettings(obj, callback) {
     let sql = ''
-    for(let key in obj){
-      if(key=='site_logo'){
-        obj[key] = obj[key].replace(/\\/g,'/') 
+    for (let key in obj) {
+      if (key == 'site_logo') {
+        obj[key] = obj[key].replace(/\\/g, '/')
       }
-      sql += 'update options set `value` = "'+obj[key]+'" where `key` = "'+key+'";'
+      sql += 'update options set `value` = "' + obj[key] + '" where `key` = "' + key + '";'
     }
-    conn.query(sql,(err,results)=>{
-      if(err) return callback(err)
+    conn.query(sql, (err, results) => {
+      if (err) return callback(err)
 
-      callback(null,results)
+      callback(null, results)
     })
   }
 }
